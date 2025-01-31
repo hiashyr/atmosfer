@@ -1,172 +1,61 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  int _themeIndex = 0;
+  final ValueNotifier<int> _themeNotifier = ValueNotifier<int>(0);
+
+  void _changeTheme(int index) {
+    setState(() {
+      _themeIndex = index;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    final theme = appThemeData[_themeIndex] ?? appThemeData[0]!;
+    return MaterialApp(
       title: 'Activity',
-      home: ActivityScreen(),
+      theme: ThemeData(
+        extensions: [theme],
+      ),
+      home: ActivityScreen(
+        themeNotifier: _themeNotifier,
+        changeTheme: _changeTheme,
+      ),
     );
   }
 }
 
 class ActivityScreen extends StatefulWidget {
-  const ActivityScreen({super.key});
+  final ValueNotifier<int> themeNotifier;
+  final Function(int) changeTheme;
+  const ActivityScreen({required this.themeNotifier, required this.changeTheme, super.key});
 
   @override
   _ActivityScreenState createState() => _ActivityScreenState();
 }
 
 class _ActivityScreenState extends State<ActivityScreen> {
-  final ValueNotifier<int> _themeNotifier = ValueNotifier<int>(0);
-
-  Color text_logo = Colors.white;
-  Color buttonTextColor = Colors.white;
-  Color stepTextColor = Colors.white;
-  Color step_number = Colors.white;
-  Color text_h1 = Colors.white;
-  Color button = Colors.blue;
-  Color box = Colors.black.withValues(alpha: 0.7);
-  Color iconColor = Colors.white;
-  Color forthetextBlend = Colors.blue;
-  Color backgroundOverlay = Colors.transparent;
-
-  Color mainBackground = Colors.black;
-
-   late TextStyle _titleTextStyle;
-  late TextStyle _buttonTextStyle;
-  late TextStyle _activityTextStyle;
-
-
-    @override
-  void initState() {
-    super.initState();
-    _updateTextStyles();
-  }
-
-  void _updateTextStyles() {
-    _titleTextStyle = TextStyle(
-      fontFamily: 'Steppe',
-      color: text_logo.withValues(alpha: 0.9),
-      fontSize: 18,
-      fontWeight: FontWeight.w100,
-    );
-
-    _buttonTextStyle = TextStyle(
-      fontFamily: 'Steppe',
-      fontSize: 16,
-      color: buttonTextColor,
-    );
-
-    _activityTextStyle = TextStyle(
-      fontFamily: 'Steppe',
-      color: text_h1.withValues(alpha: 0.8),
-      fontSize: 24,
-      fontWeight: FontWeight.w100,
-    );
-  }
-
-
-  void _changeTheme(int themeIndex) {
-  setState(() {
-    final commonTheme = {
-      0: {
-        'text_logo': Colors.white,
-        'buttonTextColor': Colors.white,
-        'stepTextColor': Colors.white,
-        'step_number': Colors.white,
-        'text_h1': Colors.white,
-        'button': Colors.blue,
-        'box': Colors.black.withValues(alpha: 0.7),
-        'iconColor': Colors.white,
-        'forthetextBlend': Colors.blue,
-        'backgroundOverlay': Colors.transparent,
-        'mainBackground': Colors.black,
-      },
-      1: {
-        'text_logo': Colors.black,
-        'buttonTextColor': Colors.white,
-        'stepTextColor': Colors.black,
-        'step_number': Colors.white,
-        'text_h1': Colors.white,
-        'button': Colors.blue,
-        'box': Colors.white.withValues(alpha: 0.7),
-        'iconColor': Colors.white,
-        'forthetextBlend': Colors.blue,
-        'backgroundOverlay': Colors.transparent,
-        'mainBackground': Colors.white,
-      },
-      2: {
-        'text_logo': Colors.white,
-        'buttonTextColor': Colors.black,
-        'stepTextColor': Colors.white,
-        'step_number': Colors.black,
-        'text_h1': Colors.black,
-        'button': Colors.yellow,
-        'box': Colors.black.withValues(alpha: 0.7),
-        'iconColor': Colors.white,
-        'forthetextBlend': Colors.yellow,
-        'backgroundOverlay': Colors.yellow,
-        'mainBackground': Colors.black,
-      },
-      3: {
-        'text_logo': Colors.white,
-        'buttonTextColor': Colors.black,
-        'stepTextColor': Colors.white,
-        'step_number': Colors.black,
-        'text_h1': Colors.black,
-        'button': Colors.white,
-        'box': Colors.black.withValues(alpha: 0.7),
-        'iconColor': Colors.black,
-        'forthetextBlend': Colors.white,
-        'backgroundOverlay': Colors.white,
-        'mainBackground': Colors.black,
-      },
-      4: {
-        'text_logo': Colors.white,
-        'buttonTextColor': Colors.white,
-        'stepTextColor': Colors.white,
-        'step_number': Colors.white,
-        'text_h1': Colors.white,
-        'button': Colors.red,
-        'box': Colors.black.withValues(alpha: 0.7),
-        'iconColor': Colors.white,
-        'forthetextBlend': Colors.red,
-        'backgroundOverlay': Colors.red,
-        'mainBackground': Colors.black,
-      },
-    };
-
-    final themeData = commonTheme[themeIndex] ?? commonTheme[0]!;
-
-    text_logo = themeData['text_logo']!;
-    buttonTextColor = themeData['buttonTextColor']!;
-    stepTextColor = themeData['stepTextColor']!;
-    step_number = themeData['step_number']!;
-    text_h1 = themeData['text_h1']!;
-    button = themeData['button']!;
-    box = themeData['box']!;
-    iconColor = themeData['iconColor']!;
-    forthetextBlend = themeData['forthetextBlend']!;
-    backgroundOverlay = themeData['backgroundOverlay']!;
-    mainBackground = themeData['mainBackground']!;
-    _updateTextStyles();
-  });
-}
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).extension<AppTheme>()!;
+
     return Scaffold(
       extendBody: true,
-      backgroundColor: mainBackground,
+      backgroundColor: theme.mainBackground,
       body: Stack(
         children: [
           Positioned.fill(
@@ -179,14 +68,15 @@ class _ActivityScreenState extends State<ActivityScreen> {
           ),
           Positioned.fill(
             child: ValueListenableBuilder<int>(
-              valueListenable: _themeNotifier,
+              valueListenable: widget.themeNotifier,
               builder: (context, themeIndex, child) {
+                final theme = Theme.of(context).extension<AppTheme>()!;
                 return Image.asset(
                   'assets/images/background2.png',
                   fit: BoxFit.cover,
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
-                  color: backgroundOverlay,
+                  color: theme.backgroundOverlay,
                   colorBlendMode: BlendMode.srcATop,
                 );
               },
@@ -195,15 +85,15 @@ class _ActivityScreenState extends State<ActivityScreen> {
           Positioned(
             top: 200,
             left: -25,
-             child: SvgPicture.asset(
+            child: SvgPicture.asset(
               'assets/images/vector1.svg',
               width: 300,
             ),
           ),
-           Positioned(
+          Positioned(
             top: 200,
             right: 0,
-             child: SvgPicture.asset(
+            child: SvgPicture.asset(
               'assets/images/vector2.svg',
             ),
           ),
@@ -216,7 +106,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
               height: 360,
             ),
           ),
-           Positioned(
+          Positioned(
             top: 410,
             right: 360,
             child: Image.asset(
@@ -225,7 +115,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
               height: 180,
             ),
           ),
-           Positioned(
+          Positioned(
             bottom: 115,
             right: 30,
             child: Image.asset(
@@ -243,7 +133,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   Center(
                     child: Text(
                       'АКТИВНОСТЬ',
-                      style: _titleTextStyle,
+                      style: theme.titleTextStyle,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -258,7 +148,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                         children: [
                           ColorFiltered(
                             colorFilter: ColorFilter.mode(
-                              forthetextBlend,
+                              theme.forthetextBlend,
                               BlendMode.srcATop,
                             ),
                             child: Image.asset(
@@ -266,18 +156,18 @@ class _ActivityScreenState extends State<ActivityScreen> {
                               fit: BoxFit.fill,
                             ),
                           ),
-                            Padding(
+                          Padding(
                             padding: const EdgeInsets.all(20),
                             child: Text(
                               'Подключи источник активности и',
-                                style: _activityTextStyle,
+                              style: theme.activityTextStyle,
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                   const SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   LayoutBuilder(
                     builder: (context, constraints) {
                       double stepHeight = constraints.maxWidth > 600 ? 40 : 0;
@@ -293,16 +183,16 @@ class _ActivityScreenState extends State<ActivityScreen> {
                               text: 'Тренируйся и выполняй норму активности',
                               angle: pi / -50,
                               theme: {
-                                'box': box,
-                                'button': button,
-                                'stepText': stepTextColor,
-                                'text': stepTextColor,
-                                'step_number': step_number,
+                                'box': theme.box,
+                                'button': theme.button,
+                                'stepText': theme.stepTextColor,
+                                'text': theme.stepTextColor,
+                                'step_number': theme.stepNumber,
                               },
                               width: blockWidth,
                             ),
                           ),
-                           SizedBox(height: stepHeight),
+                          SizedBox(height: stepHeight),
                           Transform.translate(
                             offset: const Offset(20, 0),
                             child: ActivityStep(
@@ -310,16 +200,16 @@ class _ActivityScreenState extends State<ActivityScreen> {
                               text: 'Получай баллы здоровья и оплачивай ими покупки',
                               angle: pi / -92.78,
                               theme: {
-                                'box': box,
-                                'button': button,
-                                'stepText': stepTextColor,
-                                'text': stepTextColor,
-                                 'step_number': step_number,
+                                'box': theme.box,
+                                'button': theme.button,
+                                'stepText': theme.stepTextColor,
+                                'text': theme.stepTextColor,
+                                'step_number': theme.stepNumber,
                               },
                               width: blockWidth,
                             ),
                           ),
-                           SizedBox(height: stepHeight),
+                          SizedBox(height: stepHeight),
                           Transform.translate(
                             offset: const Offset(65, 0),
                             child: ActivityStep(
@@ -327,11 +217,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
                               text: 'Соревнуйся с друзьями и повышай рейтинг своего региона',
                               angle: pi / 84.11,
                               theme: {
-                                'box': box,
-                                'button': button,
-                                'stepText': stepTextColor,
-                                'text': stepTextColor,
-                                'step_number': step_number,
+                                'box': theme.box,
+                                'button': theme.button,
+                                'stepText': theme.stepTextColor,
+                                'text': theme.stepTextColor,
+                                'step_number': theme.stepNumber,
                               },
                               width: blockWidth,
                             ),
@@ -340,13 +230,13 @@ class _ActivityScreenState extends State<ActivityScreen> {
                       );
                     },
                   ),
-                   const SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   Align(
                     alignment: Alignment.center,
                     child: ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: button,
+                        backgroundColor: theme.button,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 50, vertical: 25),
                         shape: RoundedRectangleBorder(
@@ -355,7 +245,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                       ),
                       child: Text(
                         'ПОДКЛЮЧИТЬ',
-                        style: _buttonTextStyle,
+                        style: theme.buttonTextStyle,
                       ),
                     ),
                   ),
@@ -367,32 +257,32 @@ class _ActivityScreenState extends State<ActivityScreen> {
         ],
       ),
       bottomNavigationBar: Padding(
-         padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 20),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 15),
           decoration: BoxDecoration(
-            color: button,
+            color: theme.button,
             borderRadius: BorderRadius.circular(30),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildMenuIcon('assets/icons/logo.svg', iconColor),
-              _buildMenuIcon('assets/icons/house.svg', iconColor),
-              _buildMenuIcon('assets/icons/pulse.svg', iconColor),
-              _buildMenuIcon('assets/icons/reward.svg', iconColor),
-              _buildMenuIcon('assets/icons/human.svg', iconColor),
+              _buildMenuIcon('assets/icons/logo.svg', theme.iconColor),
+              _buildMenuIcon('assets/icons/house.svg', theme.iconColor),
+              _buildMenuIcon('assets/icons/pulse.svg', theme.iconColor),
+              _buildMenuIcon('assets/icons/reward.svg', theme.iconColor),
+              _buildMenuIcon('assets/icons/human.svg', theme.iconColor),
             ],
           ),
         ),
       ),
-        floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _themeNotifier.value = (_themeNotifier.value + 1) % 5;
-          _changeTheme(_themeNotifier.value);
+          widget.themeNotifier.value = (widget.themeNotifier.value + 1) % 5;
+          widget.changeTheme(widget.themeNotifier.value);
         },
-        backgroundColor: button,
-         child: Icon(Icons.color_lens, color: iconColor),
+        backgroundColor: theme.button,
+        child: Icon(Icons.color_lens, color: theme.iconColor),
       ),
     );
   }
@@ -406,7 +296,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
     );
   }
 }
-
 
 class ActivityStep extends StatelessWidget {
   final String stepNumber;
@@ -468,3 +357,249 @@ class ActivityStep extends StatelessWidget {
     );
   }
 }
+
+@immutable
+class AppTheme extends ThemeExtension<AppTheme> {
+  final Color textLogo;
+  final Color buttonTextColor;
+  final Color stepTextColor;
+  final Color stepNumber;
+  final Color textH1;
+  final Color button;
+  final Color box;
+  final Color iconColor;
+  final Color forthetextBlend;
+  final Color backgroundOverlay;
+  final Color mainBackground;
+  final TextStyle titleTextStyle;
+  final TextStyle buttonTextStyle;
+  final TextStyle activityTextStyle;
+
+  const AppTheme({
+    required this.textLogo,
+    required this.buttonTextColor,
+    required this.stepTextColor,
+    required this.stepNumber,
+    required this.textH1,
+    required this.button,
+    required this.box,
+    required this.iconColor,
+    required this.forthetextBlend,
+    required this.backgroundOverlay,
+    required this.mainBackground,
+    required this.titleTextStyle,
+    required this.buttonTextStyle,
+    required this.activityTextStyle,
+  });
+
+  @override
+  AppTheme copyWith({
+    Color? textLogo,
+    Color? buttonTextColor,
+    Color? stepTextColor,
+    Color? stepNumber,
+    Color? textH1,
+    Color? button,
+    Color? box,
+    Color? iconColor,
+    Color? forthetextBlend,
+    Color? backgroundOverlay,
+    Color? mainBackground,
+    TextStyle? titleTextStyle,
+    TextStyle? buttonTextStyle,
+    TextStyle? activityTextStyle,
+  }) {
+    return AppTheme(
+      textLogo: textLogo ?? this.textLogo,
+      buttonTextColor: buttonTextColor ?? this.buttonTextColor,
+      stepTextColor: stepTextColor ?? this.stepTextColor,
+      stepNumber: stepNumber ?? this.stepNumber,
+      textH1: textH1 ?? this.textH1,
+      button: button ?? this.button,
+      box: box ?? this.box,
+      iconColor: iconColor ?? this.iconColor,
+      forthetextBlend: forthetextBlend ?? this.forthetextBlend,
+      backgroundOverlay: backgroundOverlay ?? this.backgroundOverlay,
+      mainBackground: mainBackground ?? this.mainBackground,
+      titleTextStyle: titleTextStyle ?? this.titleTextStyle,
+      buttonTextStyle: buttonTextStyle ?? this.buttonTextStyle,
+      activityTextStyle: activityTextStyle ?? this.activityTextStyle,
+    );
+  }
+
+  @override
+  ThemeExtension<AppTheme> lerp(ThemeExtension<AppTheme>? other, double t) {
+    if (other is! AppTheme) {
+      return this;
+    }
+    return AppTheme(
+      textLogo: Color.lerp(textLogo, other.textLogo, t)!,
+      buttonTextColor: Color.lerp(buttonTextColor, other.buttonTextColor, t)!,
+      stepTextColor: Color.lerp(stepTextColor, other.stepTextColor, t)!,
+      stepNumber: Color.lerp(stepNumber, other.stepNumber, t)!,
+      textH1: Color.lerp(textH1, other.textH1, t)!,
+      button: Color.lerp(button, other.button, t)!,
+      box: Color.lerp(box, other.box, t)!,
+      iconColor: Color.lerp(iconColor, other.iconColor, t)!,
+      forthetextBlend: Color.lerp(forthetextBlend, other.forthetextBlend, t)!,
+      backgroundOverlay: Color.lerp(backgroundOverlay, other.backgroundOverlay, t)!,
+      mainBackground: Color.lerp(mainBackground, other.mainBackground, t)!,
+      titleTextStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t)!,
+      buttonTextStyle: TextStyle.lerp(buttonTextStyle, other.buttonTextStyle, t)!,
+      activityTextStyle: TextStyle.lerp(activityTextStyle, other.activityTextStyle, t)!,
+    );
+  }
+}
+
+final appThemeData = {
+  0: AppTheme(
+    textLogo: Colors.white,
+    buttonTextColor: Colors.white,
+    stepTextColor: Colors.white,
+    stepNumber: Colors.white,
+    textH1: Colors.white,
+    button: Colors.blue,
+    box: Colors.black.withValues(alpha: 0.7),
+    iconColor: Colors.white,
+    forthetextBlend: Colors.blue,
+    backgroundOverlay: Colors.transparent,
+    mainBackground: Colors.black,
+    titleTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      color: Colors.white,
+      fontSize: 18,
+      fontWeight: FontWeight.w100,
+    ),
+    buttonTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      fontSize: 16,
+      color: Colors.white,
+    ),
+    activityTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      color: Colors.white,
+      fontSize: 24,
+      fontWeight: FontWeight.w100,
+    ),
+  ),
+  1: AppTheme(
+    textLogo: Colors.black,
+    buttonTextColor: Colors.white,
+    stepTextColor: Colors.black,
+    stepNumber: Colors.white,
+    textH1: Colors.white,
+    button: Colors.blue,
+    box: Colors.white.withValues(alpha: 0.7),
+    iconColor: Colors.white,
+    forthetextBlend: Colors.blue,
+    backgroundOverlay: Colors.transparent,
+    mainBackground: Colors.white,
+    titleTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      color: Colors.black,
+      fontSize: 18,
+      fontWeight: FontWeight.w100,
+    ),
+    buttonTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      fontSize: 16,
+      color: Colors.white,
+    ),
+    activityTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      color: Colors.white,
+      fontSize: 24,
+      fontWeight: FontWeight.w100,
+    ),
+  ),
+  2: AppTheme(
+    textLogo: Colors.white,
+    buttonTextColor: Colors.black,
+    stepTextColor: Colors.white,
+    stepNumber: Colors.black,
+    textH1: Colors.black,
+    button: Colors.yellow,
+    box: Colors.black.withValues(alpha: 0.7),
+    iconColor: Colors.white,
+    forthetextBlend: Colors.yellow,
+    backgroundOverlay: Colors.yellow,
+    mainBackground: Colors.black,
+    titleTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      color: Colors.white,
+      fontSize: 18,
+      fontWeight: FontWeight.w100,
+    ),
+    buttonTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      fontSize: 16,
+      color: Colors.black,
+    ),
+    activityTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      color: Colors.black,
+      fontSize: 24,
+      fontWeight: FontWeight.w100,
+    ),
+  ),
+  3: AppTheme(
+    textLogo: Colors.white,
+    buttonTextColor: Colors.black,
+    stepTextColor: Colors.white,
+    stepNumber: Colors.black,
+    textH1: Colors.black,
+    button: Colors.white,
+    box: Colors.black.withValues(alpha: 0.7),
+    iconColor: Colors.black,
+    forthetextBlend: Colors.white,
+    backgroundOverlay: Colors.white,
+    mainBackground: Colors.black,
+    titleTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      color: Colors.white,
+      fontSize: 18,
+      fontWeight: FontWeight.w100,
+    ),
+    buttonTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      fontSize: 16,
+      color: Colors.black,
+    ),
+    activityTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      color: Colors.black,
+      fontSize: 24,
+      fontWeight: FontWeight.w100,
+    ),
+  ),
+  4: AppTheme(
+    textLogo: Colors.white,
+    buttonTextColor: Colors.white,
+    stepTextColor: Colors.white,
+    stepNumber: Colors.white,
+    textH1: Colors.white,
+    button: Colors.red,
+    box: Colors.black.withValues(alpha: 0.7),
+    iconColor: Colors.white,
+    forthetextBlend: Colors.red,
+    backgroundOverlay: Colors.red,
+    mainBackground: Colors.black,
+    titleTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      color: Colors.white,
+      fontSize: 18,
+      fontWeight: FontWeight.w100,
+    ),
+    buttonTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      fontSize: 16,
+      color: Colors.white,
+    ),
+    activityTextStyle: const TextStyle(
+      fontFamily: 'Steppe',
+      color: Colors.white,
+      fontSize: 24,
+      fontWeight: FontWeight.w100,
+    ),
+  ),
+};
